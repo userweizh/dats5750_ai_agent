@@ -1,0 +1,21 @@
+steps:
+  # Step 1: Build the Docker container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Container Image'
+    args: [
+      'build', 
+      '-t', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/symposium-repo/symposium-app:$SHORT_SHA', 
+      '.'
+    ]
+
+  # Step 2: Push the image cleanly into your Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Image to Artifact Registry'
+    args: [
+      'push', 
+      'australia-southeast1-docker.pkg.dev/$PROJECT_ID/symposium-repo/symposium-app:$SHORT_SHA'
+    ]
+
+# 🚀 THE MAGIC FIX: This explicitly resolves the exact UI error you saw!
+options:
+  logging: CLOUD_LOGGING_ONLY
