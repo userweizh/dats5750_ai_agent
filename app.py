@@ -11,7 +11,7 @@ def get_ai_client():
 @st.cache_resource
 def get_db_client():
     # Automatically uses your authenticated GCP project credentials
-    return firestore.Client(database="guest-list")
+    return firestore.Client(project="patheon-ai", database="guest-list")
 
 client = get_ai_client()
 db = get_db_client()
@@ -52,7 +52,7 @@ if "persona_library" not in st.session_state:
 # 3. Streamlit Page Setup
 st.set_page_config(page_title="Pantheon AI", page_icon="🍽️", layout="wide")
 st.title("🍽️ Dinner with Great Minds")
-st.subheader("Moderate a high-level debate with history's most distinct figures.")
+st.subheader("Enjoy and have a fun conversation!")
 
 # Keep track of confirmation state across sidebar interactions
 if "show_overwrite_confirmation" not in st.session_state:
