@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080
 
 # Configure Streamlit to run on port 8080 and accept external cloud traffic
-CMD ["sh", "-c", "streamlit run app2.py --server.port=${PORT:-8080} --server.address=0.0.0.0"]
+CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8080} --server.address=0.0.0.0"]
