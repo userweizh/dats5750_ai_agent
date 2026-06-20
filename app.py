@@ -10,14 +10,12 @@ def get_ai_client():
 
 @st.cache_resource
 def get_db_client():
-    # Automatically uses your authenticated GCP project credentials
     return firestore.Client(project="patheon-ai", database="guest-list")
 
 client = get_ai_client()
 db = get_db_client()
 
 # 2. Database-backed Persona Library Initialization
-# Instead of hardcoding everything in temporary RAM, we sync with Firestore
 if "persona_library" not in st.session_state:
     # A. Setup the default starting lineup
     defaults = {
@@ -29,7 +27,6 @@ if "persona_library" not in st.session_state:
     }
 
     try:
-        # B. Pull any custom personas stored in your Firestore 'personas' collection
         personas_ref = db.collection("personas")
         docs = personas_ref.stream()
 
@@ -37,7 +34,6 @@ if "persona_library" not in st.session_state:
         for doc in docs:
             cloud_personas[doc.id] = doc.to_dict().get("prompt")
 
-        # C. Merge them! If Firestore is empty, seed it with defaults
         if not cloud_personas:
             for name, prompt in defaults.items():
                 personas_ref.document(name).set({"prompt": prompt})
@@ -64,33 +60,20 @@ if "sidebar_success_message" not in st.session_state:
 
 
 # 4. Sidebar Configuration & Custom Guest Management
-# st.sidebar.header("Guest List Configuration")
-
-# --- CUSTOM GUEST EXTENSION FEATURE ---
-# st.sidebar.subheader("➕ Invite a Custom Guest")
-
 if st.session_state.sidebar_success_message:
     st.sidebar.success(st.session_state.sidebar_success_message)
     st.session_state.sidebar_success_message = None
 
-# custom_name = st.sidebar.text_input("Guest Name:", placeholder="e.g., Ada Lovelace")
-# custom_prompt = st.sidebar.text_area(
-#     "System Prompt / Personality Instructions:",
-#     placeholder="Describe how they should behave, talk, or think..."
-# )
-
-# --- UPGRADED SIDEBAR GUEST MANAGEMENT ---
 st.sidebar.header("Guest List Configuration")
 st.sidebar.subheader("➕ Invite a Custom Guest")
 
 custom_name = st.sidebar.text_input("Guest Name:", placeholder="e.g., Ada Lovelace", key="input_name")
 
-# 🤖 THE AGENTIC PROMPT GENERATOR BUTTON
+#THE AGENTIC PROMPT GENERATOR BUTTON
 if st.sidebar.button("🤖 Auto-Generate Personality Profile"):
     if custom_name.strip():
         with st.sidebar.spinner(f"Researching {custom_name} via Google Search..."):
             try:
-                # We ask Gemini to use its live search tool to research the person
                 generation_prompt = f"""
                 Research the historical or public figure named '{custom_name}'.
                 Write a concise, high-quality system instruction prompt (system persona) for an AI agent to impersonate them.
@@ -107,7 +90,6 @@ if st.sidebar.button("🤖 Auto-Generate Personality Profile"):
                     )
                 )
 
-                # ✅ FIX: Explicitly assign directly to the text area's widget key index
                 st.session_state["input_prompt"] = profile_response.text
                 st.session_state.sidebar_success_message = "✨ Profile generated successfully!"
                 st.rerun()
@@ -126,8 +108,6 @@ custom_prompt = st.sidebar.text_area(
     key="input_prompt"
 )
 
-
-# Stage 1: The user clicks the initial invitation button
 if st.sidebar.button("Send Invitation ✉️"):
     if custom_name.strip() and custom_prompt.strip():
         clean_name = custom_name.strip()
@@ -150,7 +130,6 @@ if st.sidebar.button("Send Invitation ✉️"):
     else:
         st.sidebar.error("Please fill in both fields to create a guest.")
 
-# Stage 2: The conditional Overwrite Prompt Box
 if st.session_state.show_overwrite_confirmation:
     st.sidebar.warning(f"⚠️ **{st.session_state.pending_name}** already exists in the symposium directory.")
     st.sidebar.write("Do you want to overwrite their personality profile description?")
